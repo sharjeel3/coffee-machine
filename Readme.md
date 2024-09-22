@@ -8,7 +8,7 @@ It contains one endpoint:
 ```
 /api/coffee
 ```
-It has one required parameter `location`. Example location header would be:
+Which has one required parameter `location`. Example location header would be:
 ```
 Australia/Brisbane
 ```
@@ -16,7 +16,7 @@ Australia/Brisbane
 We can use one of the values from `TZ Identifier` mentioned on IANA database https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
  
 ## Greeting
-Normally the endpoint returns a `message` and the `preprared` timestamp.
+Normally the endpoint returns a `message` and the `prepared` timestamp in specified timezone.
 
 ```json
 {
