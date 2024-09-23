@@ -6,7 +6,7 @@ You can run the app using IIS Express in Visual Studio.
 
 It contains one endpoint:
 ```
-/api/coffee
+/brew-coffee
 ```
 Which has one required parameter `location`. Example location header would be:
 ```

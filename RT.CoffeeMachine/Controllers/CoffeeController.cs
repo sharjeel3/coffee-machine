@@ -8,7 +8,7 @@ using System.ComponentModel.DataAnnotations;
 namespace RT.CoffeeMachine.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("brew-coffee")]
 public class CoffeeController(ICoffeeService coffeeService,
     IAnalyticsService analyticsService) : ControllerBase
 {
@@ -36,6 +36,13 @@ public class CoffeeController(ICoffeeService coffeeService,
         catch (ServiceNotAvailableException)
         {
             return StatusCode(503, null);
+        }
+        catch (BadRequestException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Title = ex.Message
+            });
         }
         catch
         {

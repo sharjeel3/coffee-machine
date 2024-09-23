@@ -6,7 +6,8 @@ using RT.CoffeeMachine.Models;
 namespace RT.CoffeeMachine.Services;
 
 public class CoffeeService(IAnalyticsService analyticsService,
-    IDateTimeService dateTimeService) : ICoffeeService
+    IDateTimeService dateTimeService,
+    ILogger<ICoffeeService> logger) : ICoffeeService
 {
     private const string Greeting = 
         "Your piping hot coffee is ready";
@@ -16,7 +17,13 @@ public class CoffeeService(IAnalyticsService analyticsService,
         var utcNow = dateTimeService.GetNowInUtc();
         var localDate = utcNow.ToLocalDate(location);
 
-        if (localDate.Month is 4 && localDate.Day is 1)
+        if (!localDate.HasValue)
+        {
+            logger.LogInformation("{service} received invalid location", nameof(CoffeeService));
+            throw new BadRequestException("Invalid location");
+        }
+
+        if (localDate.Value.Month is 4 && localDate.Value.Day is 1)
         {
             return null;
         }
@@ -31,7 +38,7 @@ public class CoffeeService(IAnalyticsService analyticsService,
         return new CoffeeResponse
         {
             Message = Greeting,
-            Prepared = localDate.ToString(DateFormats.IsoDateTimeFormat)
+            Prepared = localDate.Value.ToString(DateFormats.IsoDateTimeFormat)
         };
     }
 }

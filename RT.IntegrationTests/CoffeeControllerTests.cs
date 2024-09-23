@@ -10,12 +10,14 @@ namespace RT.IntegrationTests;
 public class CoffeeControllerTests
 {
     private const string Location = "Australia/Brisbane";
-    private readonly bool _isAprilFirst;
+    private const string Endpoint = "/brew-coffee";
+    private readonly bool _isAprilFirst = false;
 
     public CoffeeControllerTests()
     {
         var now = DateTime.UtcNow.ToLocalDate(Location);
-        _isAprilFirst = now.Month == 4 && now.Day == 1;
+        if (now.HasValue)
+            _isAprilFirst = now.Value.Month == 4 && now.Value.Day == 1;
     }
 
     [Fact]
@@ -27,7 +29,7 @@ public class CoffeeControllerTests
         client.DefaultRequestHeaders.Add("Location", Location);
         
         // Act
-        var response = await client.GetAsync("/api/coffee");
+        var response = await client.GetAsync(Endpoint);
 
         // Assert
         if (_isAprilFirst)
@@ -45,7 +47,7 @@ public class CoffeeControllerTests
     }
 
     [Fact]
-    public async Task CoffeeController_WhenCalledWithBadLocation_ReturnsServerError()
+    public async Task CoffeeController_WhenCalledWithBadLocation_ReturnsBadRequestError()
     {
         // Arrange
         var factory = new WebApplicationFactory<Program>();
@@ -53,10 +55,10 @@ public class CoffeeControllerTests
         client.DefaultRequestHeaders.Add("Location", "SomeLocation");
 
         // Act
-        var response = await client.GetAsync("/api/coffee");
+        var response = await client.GetAsync(Endpoint);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -67,7 +69,7 @@ public class CoffeeControllerTests
         var client = factory.CreateClient();
 
         // Act
-        var response = await client.GetAsync("/api/coffee");
+        var response = await client.GetAsync(Endpoint);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -82,11 +84,11 @@ public class CoffeeControllerTests
         client.DefaultRequestHeaders.Add("Location", Location);
 
         // Act
-        await client.GetAsync("/api/coffee");
-        await client.GetAsync("/api/coffee");
-        await client.GetAsync("/api/coffee");
-        await client.GetAsync("/api/coffee");
-        var response = await client.GetAsync("/api/coffee");
+        await client.GetAsync(Endpoint);
+        await client.GetAsync(Endpoint);
+        await client.GetAsync(Endpoint);
+        await client.GetAsync(Endpoint);
+        var response = await client.GetAsync(Endpoint);
 
         // Assert
         if (_isAprilFirst)
@@ -114,7 +116,7 @@ public class CoffeeControllerTests
         // Act and Assert
         for (int i = 1; i <= invokeCount; i++)
         {
-            var response = await client.GetAsync("/api/coffee");
+            var response = await client.GetAsync(Endpoint);
             var actual = response.StatusCode;
             if (_isAprilFirst)
             {
